@@ -1,61 +1,23 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
+import { MenuSidebar } from '@/components/MenuSidebar';
+import type { MenuItem } from '@/data/menuData';
 
-interface OrderItem {
-  name: string;
-  price: number;
+interface OrderItem extends MenuItem {
   quantity: number;
 }
 
-interface Category {
-  id: string;
-  name: string;
-  items: Array<{
-    id: string;
-    name: string;
-    price: number;
-    description?: string;
-  }>;
-}
-
-const categories: Category[] = [
-  {
-    id: 'food',
-    name: 'FOOD',
-    items: [
-      { id: 'item1', name: 'Sample Item', price: 9.99, description: 'A delicious sample item' },
-      // Add more items as needed
-    ]
-  },
-  {
-    id: 'drinks',
-    name: 'DRINKS',
-    items: []
-  },
-  {
-    id: 'fastbar',
-    name: 'FAST BAR',
-    items: []
-  },
-  {
-    id: 'breakfast',
-    name: 'BREAKFAST',
-    items: []
-  }
-];
-
 const Index = () => {
-  const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const { toast } = useToast();
 
-  const addToOrder = (item: { name: string; price: number }) => {
+  const addToOrder = (item: MenuItem) => {
     setOrderItems(prev => {
-      const existingItem = prev.find(i => i.name === item.name);
+      const existingItem = prev.find(i => i.id === item.id);
       if (existingItem) {
         return prev.map(i => 
-          i.name === item.name 
+          i.id === item.id 
             ? { ...i, quantity: i.quantity + 1 }
             : i
         );
@@ -92,7 +54,7 @@ const Index = () => {
   const totals = calculateTotal();
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 lg:p-6">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Order Summary */}
         <motion.div 
@@ -150,45 +112,8 @@ const Index = () => {
         </motion.div>
 
         {/* Menu Section */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Categories */}
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4"
-          >
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`nav-item px-6 py-3 rounded-lg text-center ${
-                  selectedCategory === category.id ? 'bg-white/10' : 'bg-black/20'
-                }`}
-              >
-                {category.name}
-              </button>
-            ))}
-          </motion.div>
-
-          {/* Menu Items */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-          >
-            {categories.find(c => c.id === selectedCategory)?.items.map((item) => (
-              <motion.div
-                key={item.id}
-                whileHover={{ scale: 1.02 }}
-                className="glass-card p-4 rounded-lg cursor-pointer"
-                onClick={() => addToOrder(item)}
-              >
-                <h3 className="font-medium">{item.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
-                <p className="mt-2 font-semibold">${item.price.toFixed(2)}</p>
-              </motion.div>
-            ))}
-          </motion.div>
+        <div className="lg:col-span-3">
+          <MenuSidebar onItemSelect={addToOrder} />
         </div>
       </div>
     </div>
