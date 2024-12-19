@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
 import { MenuSidebar } from '@/components/MenuSidebar';
 import type { MenuItem } from '@/data/menuData';
+import { SidebarProvider } from '@/components/ui/sidebar';
 
 interface OrderItem extends MenuItem {
   quantity: number;
@@ -113,7 +114,9 @@ const Index = () => {
 
         {/* Menu Section */}
         <div className="lg:col-span-3">
-          <MenuSidebar onItemSelect={addToOrder} />
+          <SidebarProvider>
+            <MenuSidebar onItemSelect={addToOrder} />
+          </SidebarProvider>
         </div>
       </div>
     </div>
