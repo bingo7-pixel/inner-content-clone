@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
-import { MenuSidebar } from '@/components/MenuSidebar';
-import type { MenuItem } from '@/data/menuData';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import type { MenuItem, MainCategory, SubCategory } from '@/data/menuData';
+import { menuData } from '@/data/menuData';
 
 interface OrderItem extends MenuItem {
   quantity: number;
@@ -11,6 +10,8 @@ interface OrderItem extends MenuItem {
 
 const Index = () => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<MainCategory | null>(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState<SubCategory | null>(null);
   const { toast } = useToast();
 
   const addToOrder = (item: MenuItem) => {
@@ -56,12 +57,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="max-w-[1400px] mx-auto grid grid-cols-[300px_1fr] gap-6 p-6">
         {/* Order Summary */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="glass-card p-6 rounded-lg space-y-4"
+          className="glass-card p-6 rounded-lg space-y-4 h-[calc(100vh-3rem)] sticky top-6"
         >
           <h2 className="text-xl font-semibold">Order Summary</h2>
           <div className="space-y-4">
@@ -112,11 +113,74 @@ const Index = () => {
           </button>
         </motion.div>
 
-        {/* Menu Section */}
-        <div className="lg:col-span-3">
-          <SidebarProvider>
-            <MenuSidebar onItemSelect={addToOrder} />
-          </SidebarProvider>
+        {/* Menu Section with Three Columns */}
+        <div className="grid grid-cols-[200px_250px_1fr] gap-6">
+          {/* Main Categories Column */}
+          <div className="glass-card p-4 rounded-lg space-y-2">
+            {menuData.map((category) => (
+              <motion.button
+                key={category.id}
+                onClick={() => {
+                  setSelectedCategory(category);
+                  setSelectedSubCategory(null);
+                }}
+                className={`w-full text-left p-3 rounded-md menu-item ${
+                  selectedCategory?.id === category.id ? 'bg-white/10' : ''
+                }`}
+                whileHover={{ scale: 1.02 }}
+              >
+                {category.name}
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Sub Categories Column */}
+          {selectedCategory && (
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="glass-card p-4 rounded-lg space-y-2"
+            >
+              {selectedCategory.subCategories.map((subCategory) => (
+                <motion.button
+                  key={subCategory.id}
+                  onClick={() => setSelectedSubCategory(subCategory)}
+                  className={`w-full text-left p-3 rounded-md menu-item ${
+                    selectedSubCategory?.id === subCategory.id ? 'bg-white/10' : ''
+                  }`}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  {subCategory.name}
+                </motion.button>
+              ))}
+            </motion.div>
+          )}
+
+          {/* Items Display */}
+          {selectedSubCategory && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="glass-card p-6 rounded-lg"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {selectedSubCategory.items.map((item) => (
+                  <motion.div
+                    key={item.id}
+                    whileHover={{ scale: 1.02 }}
+                    className="glass-card p-4 rounded-lg cursor-pointer"
+                    onClick={() => addToOrder(item)}
+                  >
+                    <h3 className="font-medium">{item.name}</h3>
+                    {item.description && (
+                      <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                    )}
+                    <p className="mt-2 font-semibold">${item.price.toFixed(2)}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
     </div>
