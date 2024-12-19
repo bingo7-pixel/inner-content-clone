@@ -126,7 +126,7 @@ const Index = () => {
                 }}
                 className={`w-full text-left p-3 rounded-md menu-item ${
                   selectedCategory?.id === category.id ? 'bg-white/10' : ''
-                }`}
+                } ${category.bgColor}`}
                 whileHover={{ scale: 1.02 }}
               >
                 {category.name}
@@ -147,7 +147,7 @@ const Index = () => {
                   onClick={() => setSelectedSubCategory(subCategory)}
                   className={`w-full text-left p-3 rounded-md menu-item ${
                     selectedSubCategory?.id === subCategory.id ? 'bg-white/10' : ''
-                  }`}
+                  } ${subCategory.bgColor}`}
                   whileHover={{ scale: 1.02 }}
                 >
                   {subCategory.name}
